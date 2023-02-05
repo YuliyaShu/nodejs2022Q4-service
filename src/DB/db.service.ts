@@ -2,9 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateArtistDto } from 'src/artists/dto/create-artist.dto';
 import { UpdateArtistDto } from 'src/artists/dto/update-artist.dto';
 import { Artist } from 'src/artists/entities/artist.entity';
+import { CreateTrackDto } from 'src/tracks/dto/create-track.dto';
+import { UpdateTrackDto } from 'src/tracks/dto/update-track.dto';
+import { Track } from 'src/tracks/entities/track.entity';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import { User } from 'src/users/entities/user.entity';
+import { DTOValidation } from 'src/utils/DTOValidation';
 import { getUserWithoutPassword } from 'src/utils/getUserWithoutPassword';
 import { v4 as uuidv4, validate } from 'uuid';
 
@@ -12,6 +16,7 @@ import { v4 as uuidv4, validate } from 'uuid';
 export class DbService {
   private users: User[] = [];
   private artists: Artist[] = [];
+  private tracks: Track[] = [];
 
   private async getUserByIdWithPassword(id: string) {
     if (!validate(id)) {
@@ -111,9 +116,6 @@ export class DbService {
   }
 
   async getAllArtists() {
-    if (!this.artists.length) {
-      return this.artists;
-    }
     return this.artists;
   }
 
@@ -132,7 +134,7 @@ export class DbService {
   }
 
   async addArtist(createArtistDto: CreateArtistDto) {
-    if (!createArtistDto.grammy || !createArtistDto.name) {
+    if (!('grammy' in createArtistDto) || !('name' in createArtistDto)) {
       throw new HttpException(
         'Bad request. body does not contain required fields',
         HttpStatus.BAD_REQUEST,
@@ -155,26 +157,17 @@ export class DbService {
       );
     }
     const artist = await this.getArtistById(id);
-    console.log('🚀 ~ 11updateArtist ~ artist', artist);
     if (!artist) {
       throw new HttpException('Artist was not found', HttpStatus.NOT_FOUND);
     }
-    if (
-      typeof updateArtistDto.name !== 'string' ||
-      typeof updateArtistDto.grammy !== 'boolean'
-    ) {
-      throw new HttpException(
-        'Bad request. body is invalid (incorrect type)',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (updateArtistDto.grammy) {
+    if ('grammy' in updateArtistDto) {
+      DTOValidation(updateArtistDto.grammy, ['boolean']);
       artist.grammy = updateArtistDto.grammy;
     }
-    if (updateArtistDto.name) {
+    if ('name' in updateArtistDto) {
+      DTOValidation(updateArtistDto.name, ['string']);
       artist.name = updateArtistDto.name;
     }
-    console.log('🚀 ~ 22updateArtist ~ artist', artist);
     return artist;
   }
 
@@ -191,6 +184,101 @@ export class DbService {
     }
     this.artists = this.artists.filter(
       (artistForFilter) => artistForFilter.id !== id,
+    );
+    const tracksWithArtistId = this.tracks.filter(
+      (track) => track.artistId === id,
+    );
+    tracksWithArtistId.forEach((track) => {
+      if (track) {
+        track.artistId = null;
+      }
+    });
+  }
+
+  async getAllTracks() {
+    return this.tracks;
+  }
+
+  async getTrackById(id: string) {
+    if (!validate(id)) {
+      throw new HttpException(
+        'Bad request. trackId is invalid (not uuid)',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const track = this.tracks.find((track) => track.id === id);
+    if (!track) {
+      throw new HttpException('Track was not found', HttpStatus.NOT_FOUND);
+    }
+    return track;
+  }
+
+  async addTrack(createTrackDto: CreateTrackDto) {
+    if (
+      !('albumId' in createTrackDto) ||
+      !('artistId' in createTrackDto) ||
+      !('duration' in createTrackDto) ||
+      !('name' in createTrackDto)
+    ) {
+      throw new HttpException(
+        'Bad request. body does not contain required fields',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const track: Track = {
+      id: uuidv4(),
+      name: createTrackDto.name,
+      artistId: createTrackDto.artistId,
+      albumId: createTrackDto.albumId,
+      duration: createTrackDto.duration,
+    };
+    this.tracks.push(track);
+    return track;
+  }
+
+  async updateTrack(id: string, updateTrackDto: UpdateTrackDto) {
+    if (!validate(id)) {
+      throw new HttpException(
+        'Bad request. trackId is invalid (not uuid)',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const track = await this.getTrackById(id);
+    if (!track) {
+      throw new HttpException('Track was not found', HttpStatus.NOT_FOUND);
+    }
+    if ('albumId' in updateTrackDto) {
+      DTOValidation(updateTrackDto.albumId, ['string', 'object']);
+      track.albumId = updateTrackDto.albumId;
+    }
+    if ('artistId' in updateTrackDto) {
+      DTOValidation(updateTrackDto.artistId, ['string', 'object']);
+      track.artistId = updateTrackDto.artistId;
+    }
+    if ('duration' in updateTrackDto) {
+      DTOValidation(updateTrackDto.duration, ['number']);
+      track.duration = updateTrackDto.duration;
+    }
+    if ('name' in updateTrackDto) {
+      DTOValidation(updateTrackDto.name, ['string']);
+      track.name = updateTrackDto.name;
+    }
+    return track;
+  }
+
+  async deleteTrack(id: string) {
+    if (!validate(id)) {
+      throw new HttpException(
+        'Bad request. trackId is invalid (not uuid)',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const track = await this.getTrackById(id);
+    if (!track) {
+      throw new HttpException('Track was not found', HttpStatus.NOT_FOUND);
+    }
+    this.tracks = this.tracks.filter(
+      (trackForFilter) => trackForFilter.id !== id,
     );
   }
 }

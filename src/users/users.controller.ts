@@ -95,8 +95,8 @@ export class UsersController {
 
   @Put(':userId')
   @ApiOperation({
-    summary: "Update a user's password",
-    description: "Updates a user's password by ID",
+    summary: 'Update a user password',
+    description: 'Updates a user password by ID',
   })
   @ApiBody({
     schema: {

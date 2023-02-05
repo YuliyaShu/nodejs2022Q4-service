@@ -1,26 +1,29 @@
 import { Injectable } from '@nestjs/common';
+import { DbService } from 'src/db/db.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 
 @Injectable()
 export class TracksService {
-  create(createTrackDto: CreateTrackDto) {
-    return 'This action adds a new track';
+  constructor(private db: DbService) {}
+
+  async findAll() {
+    return await this.db.getAllTracks();
   }
 
-  findAll() {
-    return `This action returns all tracks`;
+  async findOne(id: string) {
+    return this.db.getTrackById(id);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} track`;
+  async create(createTrackDto: CreateTrackDto) {
+    return await this.db.addTrack(createTrackDto);
   }
 
-  update(id: number, updateTrackDto: UpdateTrackDto) {
-    return `This action updates a #${id} track`;
+  async update(id: string, updateTrackDto: UpdateTrackDto) {
+    return await this.db.updateTrack(id, updateTrackDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} track`;
+  async remove(id: string) {
+    return await this.db.deleteTrack(id);
   }
 }
