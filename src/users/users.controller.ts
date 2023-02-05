@@ -61,7 +61,7 @@ export class UsersController {
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'User not found',
+    description: 'User was not found',
   })
   async findOne(@Param('userId') id: string) {
     return await this.usersService.findOne(id);
@@ -89,8 +89,8 @@ export class UsersController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Access token is missing or invalid',
   })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
   @Put(':userId')
@@ -125,7 +125,7 @@ export class UsersController {
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'User not found',
+    description: 'User was not found',
   })
   async update(
     @Param('userId') id: string,
@@ -154,7 +154,7 @@ export class UsersController {
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'User not found',
+    description: 'User was not found',
   })
   async remove(@Param('userId') id: string) {
     return await this.usersService.remove(id);
