@@ -44,7 +44,7 @@ export class TracksController {
 
   @Get(':trackId')
   @ApiOperation({
-    summary: 'Get single track by id',
+    summary: 'Get single track',
     description: 'Gets single track by id',
   })
   @ApiResponse({

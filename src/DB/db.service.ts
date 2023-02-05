@@ -1,4 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CreateAlbumDto } from 'src/albums/dto/create-album.dto';
+import { UpdateAlbumDto } from 'src/albums/dto/update-album.dto';
+import { Album } from 'src/albums/entities/album.entity';
 import { CreateArtistDto } from 'src/artists/dto/create-artist.dto';
 import { UpdateArtistDto } from 'src/artists/dto/update-artist.dto';
 import { Artist } from 'src/artists/entities/artist.entity';
@@ -17,6 +20,7 @@ export class DbService {
   private users: User[] = [];
   private artists: Artist[] = [];
   private tracks: Track[] = [];
+  private albums: Album[] = [];
 
   private async getUserByIdWithPassword(id: string) {
     if (!validate(id)) {
@@ -193,6 +197,14 @@ export class DbService {
         track.artistId = null;
       }
     });
+    const albumsWithArtistId = this.albums.filter(
+      (album) => album.artistId === id,
+    );
+    albumsWithArtistId.forEach((album) => {
+      if (album) {
+        album.artistId = null;
+      }
+    });
   }
 
   async getAllTracks() {
@@ -280,5 +292,94 @@ export class DbService {
     this.tracks = this.tracks.filter(
       (trackForFilter) => trackForFilter.id !== id,
     );
+  }
+
+  async getAllAlbums() {
+    return this.albums;
+  }
+
+  async getAlbumById(id: string) {
+    if (!validate(id)) {
+      throw new HttpException(
+        'Bad request. albumId is invalid (not uuid)',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const album = this.albums.find((album) => album.id === id);
+    if (!album) {
+      throw new HttpException('Album was not found', HttpStatus.NOT_FOUND);
+    }
+    return album;
+  }
+
+  async addAlbum(createAlbumDto: CreateAlbumDto) {
+    if (
+      !('name' in createAlbumDto) ||
+      !('year' in createAlbumDto) ||
+      !('artistId' in createAlbumDto)
+    ) {
+      throw new HttpException(
+        'Bad request. body does not contain required fields',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const album: Album = {
+      id: uuidv4(),
+      name: createAlbumDto.name,
+      year: createAlbumDto.year,
+      artistId: createAlbumDto.artistId,
+    };
+    this.albums.push(album);
+    return album;
+  }
+
+  async updateAlbum(id: string, updateAlbumDto: UpdateAlbumDto) {
+    if (!validate(id)) {
+      throw new HttpException(
+        'Bad request. albumId is invalid (not uuid)',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const album = await this.getAlbumById(id);
+    if (!album) {
+      throw new HttpException('Album was not found', HttpStatus.NOT_FOUND);
+    }
+    if ('name' in updateAlbumDto) {
+      DTOValidation(updateAlbumDto.name, ['string']);
+      album.name = updateAlbumDto.name;
+    }
+    if ('artistId' in updateAlbumDto) {
+      DTOValidation(updateAlbumDto.artistId, ['string', 'object']);
+      album.artistId = updateAlbumDto.artistId;
+    }
+    if ('year' in updateAlbumDto) {
+      DTOValidation(updateAlbumDto.year, ['number']);
+      album.year = updateAlbumDto.year;
+    }
+    return album;
+  }
+
+  async deleteAlbum(id: string) {
+    if (!validate(id)) {
+      throw new HttpException(
+        'Bad request. albumId is invalid (not uuid)',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const album = await this.getAlbumById(id);
+    if (!album) {
+      throw new HttpException('Album was not found', HttpStatus.NOT_FOUND);
+    }
+    this.albums = this.albums.filter(
+      (albumForFilter) => albumForFilter.id !== id,
+    );
+    const tracksWithAlbumId = this.tracks.filter(
+      (track) => track.albumId === id,
+    );
+    tracksWithAlbumId.forEach((track) => {
+      if (track) {
+        track.albumId = null;
+      }
+    });
   }
 }
