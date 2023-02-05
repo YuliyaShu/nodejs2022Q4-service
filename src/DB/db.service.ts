@@ -104,6 +104,5 @@ export class DbService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     this.users = this.users.filter((userForFilter) => userForFilter.id !== id);
-    throw new HttpException('The user has been deleted', HttpStatus.NO_CONTENT);
   }
 }

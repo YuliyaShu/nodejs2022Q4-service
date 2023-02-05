@@ -7,6 +7,7 @@ import {
   Delete,
   HttpStatus,
   Put,
+  HttpCode,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -134,6 +135,7 @@ export class UsersController {
   }
 
   @Delete(':userId')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete user',
     description: 'Deletes user by ID.',
