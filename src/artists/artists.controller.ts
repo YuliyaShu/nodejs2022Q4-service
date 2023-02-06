@@ -15,6 +15,7 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { createArtistSchema } from './dto/create-artist.schema';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { updateArtistSchema } from './dto/update-artist.schema';
+import { Artist } from './entities/artist.entity';
 import { artistSchema } from './entities/artist.schema';
 
 @ApiTags('Artists')
@@ -70,6 +71,7 @@ export class ArtistsController {
   @Post()
   @ApiOperation({ summary: 'Add new artist', description: 'Adds new artist' })
   @ApiBody({
+    type: CreateArtistDto,
     schema: {
       example: createArtistSchema,
     },
@@ -77,6 +79,7 @@ export class ArtistsController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Successful operation',
+    type: Artist,
     schema: {
       example: artistSchema,
     },
@@ -89,7 +92,7 @@ export class ArtistsController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Access token is missing or invalid',
   })
-  async create(@Body() createArtistDto: CreateArtistDto) {
+  async create(@Body() createArtistDto: CreateArtistDto): Promise<Artist> {
     return await this.artistsService.create(createArtistDto);
   }
 
@@ -99,6 +102,7 @@ export class ArtistsController {
     description: 'Updates artist information by UUID',
   })
   @ApiBody({
+    type: UpdateArtistDto,
     schema: {
       example: updateArtistSchema,
     },

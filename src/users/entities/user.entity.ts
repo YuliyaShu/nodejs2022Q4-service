@@ -1,4 +1,7 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class User {
+  @ApiProperty()
   id: string; // uuid v4
   login: string;
   password: string;

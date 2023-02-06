@@ -15,6 +15,7 @@ import { CreateAlbumDto } from './dto/create-album.dto';
 import { createAlbumSchema } from './dto/create-album.schema';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { updateAlbumSchema } from './dto/update-album.schema';
+import { Album } from './entities/album.entity';
 import { albumSchema } from './entities/album.schema';
 
 @ApiTags('Albums')
@@ -76,6 +77,7 @@ export class AlbumsController {
     description: 'Adds new album information',
   })
   @ApiBody({
+    type: CreateAlbumDto,
     schema: {
       example: createAlbumSchema,
     },
@@ -83,6 +85,7 @@ export class AlbumsController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Album is created',
+    type: Album,
     schema: {
       example: albumSchema,
     },
@@ -95,7 +98,7 @@ export class AlbumsController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Access token is missing or invalid',
   })
-  async create(@Body() createAlbumDto: CreateAlbumDto) {
+  async create(@Body() createAlbumDto: CreateAlbumDto): Promise<Album> {
     return await this.albumsService.create(createAlbumDto);
   }
 
@@ -105,6 +108,7 @@ export class AlbumsController {
     description: 'Update library album information by UUID',
   })
   @ApiBody({
+    type: UpdateAlbumDto,
     schema: {
       example: updateAlbumSchema,
     },

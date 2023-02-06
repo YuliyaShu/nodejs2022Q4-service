@@ -16,6 +16,7 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { trackSchema } from './entities/track.schema';
 import { createTrackSchema } from './dto/create-track.schema';
 import { updateTrackSchema } from './dto/update-track.schema';
+import { Track } from './entities/track.entity';
 
 @ApiTags('Tracks')
 @Controller('track')
@@ -76,6 +77,7 @@ export class TracksController {
     description: 'Adds new track information',
   })
   @ApiBody({
+    type: CreateTrackDto,
     schema: {
       example: createTrackSchema,
     },
@@ -83,6 +85,7 @@ export class TracksController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Successful operation',
+    type: Track,
     schema: {
       example: trackSchema,
     },
@@ -95,7 +98,7 @@ export class TracksController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Access token is missing or invalid',
   })
-  async create(@Body() createTrackDto: CreateTrackDto) {
+  async create(@Body() createTrackDto: CreateTrackDto): Promise<Track> {
     return await this.tracksService.create(createTrackDto);
   }
 
@@ -105,6 +108,7 @@ export class TracksController {
     description: 'Update library track information by UUID',
   })
   @ApiBody({
+    type: UpdateTrackDto,
     schema: {
       example: updateTrackSchema,
     },

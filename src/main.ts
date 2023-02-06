@@ -13,7 +13,6 @@ async function bootstrap() {
       'Home Library Service! Users can create, read, update, delete data about Artists, Tracks and Albums, add them to Favorites in their own Home Library.',
     )
     .setVersion('1.0')
-    .addTag('Home Library Service')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('doc', app, document);

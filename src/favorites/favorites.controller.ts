@@ -10,6 +10,7 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Favorites } from './entities/favorite.entity';
 import { favoritesResponseSchema } from './entities/FavoritesResponse.schema';
 import { FavoritesService } from './favorites.service';
 
@@ -46,6 +47,7 @@ export class FavoritesController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Added successfully',
+    type: Favorites,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,

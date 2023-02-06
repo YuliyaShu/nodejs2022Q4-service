@@ -12,10 +12,17 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiProperty,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { userSchema } from './entities/user.schema';
 import { createUserSchema } from './dto/create-user.schema';
 import { updateUserSchema } from './dto/update-user.schema';
+import { User } from './entities/user.entity';
 
 @ApiTags('Users')
 @Controller('user')
@@ -70,6 +77,7 @@ export class UsersController {
   @Post()
   @ApiOperation({ summary: 'Create user', description: 'Creates a new user' })
   @ApiBody({
+    type: CreateUserDto,
     schema: {
       example: createUserSchema,
     },
@@ -77,6 +85,7 @@ export class UsersController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The user has been created',
+    type: User,
     schema: {
       example: userSchema,
     },
@@ -89,7 +98,7 @@ export class UsersController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Access token is missing or invalid',
   })
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return await this.usersService.create(createUserDto);
   }
 
@@ -99,6 +108,7 @@ export class UsersController {
     description: 'Updates a user password by ID',
   })
   @ApiBody({
+    type: UpdateUserDto,
     schema: {
       example: updateUserSchema,
     },
