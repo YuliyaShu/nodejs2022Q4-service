@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   const config = new DocumentBuilder()
-    .setTitle('REST Service')
+    .setTitle('REST Service (@YuliyaShu)')
     .setDescription(
       'Home Library Service! Users can create, read, update, delete data about Artists, Tracks and Albums, add them to Favorites in their own Home Library.',
     )
@@ -16,7 +16,7 @@ async function bootstrap() {
     .addTag('Home Library Service')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('doc', app, document);
   await app.listen(PORT);
 }
 bootstrap();
