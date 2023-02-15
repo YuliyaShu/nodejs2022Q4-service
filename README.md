@@ -8,7 +8,11 @@
 ## Downloading
 
 ```
-git clone {repository URL}
+git clone https://github.com/YuliyaShu/nodejs2022Q4-service.git
+```
+
+```
+git switch dev
 ```
 
 ## Installing NPM modules
@@ -19,6 +23,7 @@ npm install
 
 ## Running application
 
+**Make copy of .env.example file and rename it to .env**
 ```
 npm start
 ```
