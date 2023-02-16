@@ -1,13 +1,48 @@
 version: '3.4'
 
 services:
-  homelibrary:
-    image: homelibrary
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+  library:
+    container_name: library
+    image: yuliya73/nodejs_2022q4:library
+    env_file:
+      - .env
+    volumes:
+      - data:/var/lib/postgresql/data
+      - logs:/var/lib/postgresql/logs
     environment:
-      NODE_ENV: development
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
-      - 4000:4000
-    
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    networks:
+      - app-network
+    restart: always
+  
+  app:
+    container_name: app
+    image: yuliya73/nodejs_2022q4:app
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      - library
+    environment:
+      - PORT=${PORT}
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - ./:/usr/app
+      - /usr/app/node_modules
+    networks:
+      - app-network
+    restart: always
+
+volumes:
+  logs:
+  data:
+  node-modules:
+
+networks:
+  app-network:
+    driver: bridge
