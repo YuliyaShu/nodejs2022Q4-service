@@ -8,5 +8,6 @@ RUN npm install && npm cache clean --force
 RUN npm i nodemon -g
 RUN npm run build
 COPY . .
+RUN npx prisma generate
 USER node
 CMD ["npm", "run", "start:dev"]
