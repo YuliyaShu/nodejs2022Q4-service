@@ -10,29 +10,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model UserPrisma {
   id       String   @id @unique @default(uuid())
   login    String
   password String
   version  Int      @default(1)
-  createAt DateTime @default(now())
-  updateAt DateTime @updatedAt
+  createdAt Int
+  updatedAt Int
 }
 
-model Artist {
+model ArtistPrisma {
   id     String  @id @unique @default(uuid())
   name   String
   grammy Boolean @default(false)
 }
 
-model Album {
+model AlbumPrisma {
   id       String @id @unique @default(uuid())
   name     String
   year     Int
   artistId String
 }
 
-model Track {
+model TrackPrisma {
   id       String @id @unique @default(uuid())
   name     String
   artistId String

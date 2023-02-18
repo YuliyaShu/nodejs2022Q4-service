@@ -1,6 +1,6 @@
-import { User } from 'src/users/entities/user.entity';
+import { UserPrisma } from '@prisma/client';
 
-export const getUserWithoutPassword = (user: User) => {
+export const getUserWithoutPassword = (user: UserPrisma) => {
   const userWithoutPassword = { ...user };
   delete userWithoutPassword.password;
   return userWithoutPassword;
