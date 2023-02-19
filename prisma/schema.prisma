@@ -11,7 +11,7 @@ datasource db {
 }
 
 model UserPrisma {
-  id       String   @id @unique @default(uuid())
+  id       String   @id @default(uuid())
   login    String
   password String
   version  Int      @default(1)
@@ -20,29 +20,41 @@ model UserPrisma {
 }
 
 model ArtistPrisma {
-  id     String  @id @unique @default(uuid())
+  id     String  @id @default(uuid())
   name   String
   grammy Boolean @default(false)
+  favorites FavoritesPrisma? @relation(fields: [favoritesId], references: [id], onDelete: SetNull)
+  favoritesId String?
+  Album AlbumPrisma[]
+  Track TrackPrisma[]
 }
 
 model AlbumPrisma {
   id       String @id @unique @default(uuid())
   name     String
   year     Int
-  artistId String
+  artistId String?
+  favoritesId String?
+  favorites FavoritesPrisma? @relation(fields: [favoritesId], references: [id], onDelete: SetNull)
+  Artist ArtistPrisma? @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  Track TrackPrisma[]
 }
 
 model TrackPrisma {
-  id       String @id @unique @default(uuid())
+  id       String @id @default(uuid())
   name     String
-  artistId String
-  albumId  String
   duration Int
-  // favorites Favorites? @relation(fields: [id], references: [id])
+  artistId String?
+  albumId  String?
+  favoritesId String?
+  Artist ArtistPrisma? @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  Album AlbumPrisma? @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  favorites FavoritesPrisma? @relation(fields: [favoritesId], references: [id], onDelete: SetNull)
 }
 
-// model Favorites {
-//   artists Artist[]
-//   albums Album[]
-//   tracks Track[]
-// }
+model FavoritesPrisma {
+  id String @id @default(uuid())
+  artists ArtistPrisma[]
+  albums AlbumPrisma[]
+  tracks TrackPrisma[]
+}

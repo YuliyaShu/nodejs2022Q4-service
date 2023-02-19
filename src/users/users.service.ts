@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserPrisma } from '@prisma/client';
-import { DbService } from 'src/db/db.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { getUserWithoutPassword } from 'src/utils/getUserWithoutPassword';
 import { v4 as uuidv4, validate } from 'uuid';
@@ -9,7 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private db: DbService, private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
   private async getUserByIdWithPassword(id: string) {
     if (!validate(id)) {
@@ -110,6 +109,6 @@ export class UsersService {
     if (!user) {
       throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
-    this.prisma.userPrisma.delete({ where: { id: id } });
+    await this.prisma.userPrisma.delete({ where: { id: id } });
   }
 }
