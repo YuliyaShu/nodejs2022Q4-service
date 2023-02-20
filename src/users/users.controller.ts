@@ -17,6 +17,7 @@ import { userSchema } from './entities/user.schema';
 import { createUserSchema } from './dto/create-user.schema';
 import { updateUserSchema } from './dto/update-user.schema';
 import { User } from './entities/user.entity';
+import { UserPrisma } from '@prisma/client';
 
 @ApiTags('Users')
 @Controller('user')
@@ -92,7 +93,7 @@ export class UsersController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Access token is missing or invalid',
   })
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+  async create(@Body() createUserDto: CreateUserDto): Promise<UserPrisma> {
     return await this.usersService.create(createUserDto);
   }
 

@@ -21,13 +21,11 @@ export class UsersService {
     if (!user) {
       throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
-    console.log('🚀 ~ getUserByIdWithPassword ~ user', user);
     return user;
   }
 
   async findAll() {
     const users = await this.prisma.userPrisma.findMany();
-    console.log('🚀 ~ findAll ~ users', users);
     if (!users.length) {
       return users;
     }
@@ -63,8 +61,8 @@ export class UsersService {
       login: createUserDto.login,
       password: createUserDto.password,
       version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     await this.prisma.userPrisma.create({
       data: user,
@@ -92,10 +90,11 @@ export class UsersService {
     if (updateUserDto.oldPassword !== user.password) {
       throw new HttpException('oldPassword is wrong', HttpStatus.FORBIDDEN);
     }
-    user.password = updateUserDto.newPassword;
-    user.version = user.version + 1;
-    user.updatedAt = Date.now();
-    return getUserWithoutPassword(user);
+    const updatedUser = await this.prisma.userPrisma.update({
+      where: { id: id },
+      data: updateUserDto,
+    });
+    return getUserWithoutPassword(updatedUser);
   }
 
   async remove(id: string) {

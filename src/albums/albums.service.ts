@@ -1,28 +1,17 @@
-import {
-  forwardRef,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
-import { DbService } from 'src/db/db.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { v4 as uuidv4, validate } from 'uuid';
 import { Album } from './entities/album.entity';
 import { DTOValidation } from 'src/utils/DTOValidation';
-import { FavoritesService } from 'src/favorites/favorites.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AlbumsService {
-  constructor(
-    private db: DbService,
-    @Inject(forwardRef(() => FavoritesService))
-    private favoritesService: FavoritesService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return this.db.albums;
+    return await this.prisma.albumPrisma.findMany();
   }
 
   async findOne(id: string) {
@@ -32,7 +21,9 @@ export class AlbumsService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const album = this.db.albums.find((album) => album.id === id);
+    const album = await this.prisma.albumPrisma.findUnique({
+      where: { id: id },
+    });
     if (!album) {
       throw new HttpException('Album was not found', HttpStatus.NOT_FOUND);
     }
@@ -56,8 +47,9 @@ export class AlbumsService {
       year: createAlbumDto.year,
       artistId: createAlbumDto.artistId,
     };
-    this.db.albums.push(album);
-    return album;
+    return await this.prisma.albumPrisma.create({
+      data: album,
+    });
   }
 
   async update(id: string, updateAlbumDto: UpdateAlbumDto) {
@@ -73,17 +65,17 @@ export class AlbumsService {
     }
     if ('name' in updateAlbumDto) {
       DTOValidation(updateAlbumDto.name, ['string']);
-      album.name = updateAlbumDto.name;
     }
     if ('artistId' in updateAlbumDto) {
       DTOValidation(updateAlbumDto.artistId, ['string', 'object']);
-      album.artistId = updateAlbumDto.artistId;
     }
     if ('year' in updateAlbumDto) {
       DTOValidation(updateAlbumDto.year, ['number']);
-      album.year = updateAlbumDto.year;
     }
-    return album;
+    return await this.prisma.albumPrisma.update({
+      where: { id: id },
+      data: updateAlbumDto,
+    });
   }
 
   async remove(id: string) {
@@ -97,19 +89,6 @@ export class AlbumsService {
     if (!album) {
       throw new HttpException('Album was not found', HttpStatus.NOT_FOUND);
     }
-    this.db.albums = this.db.albums.filter(
-      (albumForFilter) => albumForFilter.id !== id,
-    );
-    const tracksWithAlbumId = this.db.tracks.filter(
-      (track) => track.albumId === id,
-    );
-    tracksWithAlbumId.forEach((track) => {
-      if (track) {
-        track.albumId = null;
-      }
-    });
-    if (this.db.favs.albums.includes(id)) {
-      await this.favoritesService.removeAlbumFromFav(id);
-    }
+    await this.prisma.albumPrisma.delete({ where: { id: id } });
   }
 }

@@ -6,5 +6,5 @@ export class CreateAlbumDto {
   @ApiProperty()
   year: number;
   @ApiProperty()
-  artistId: string | null; // refers to Artist
+  artistId: string | null;
 }

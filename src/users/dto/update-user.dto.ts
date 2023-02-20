@@ -4,7 +4,7 @@ import { CreateUserDto } from './create-user.dto';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty()
-  oldPassword: string; // previous password
+  oldPassword: string;
   @ApiProperty()
-  newPassword: string; // new password
+  newPassword: string;
 }

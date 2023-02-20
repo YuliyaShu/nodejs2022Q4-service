@@ -21,32 +21,34 @@ git switch dev-docker
 npm install
 ```
 
-## Running application
+## Running application with Docker
 
 **Make copy of .env.example file and rename it to .env**
+
+- Download and install docker
+
+
+- Start application
+
 ```
-npm start
+npm run start:docker
 ```
+
+- Make prisma migrations with two scripts in new terminal (go inside the app and start migration)
+
+```
+docker exec -it app sh
+```
+
+```
+npx prisma migrate deploy
+```
+
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
-
-# Using App with Docker
-
-- Download and install docker
-- Create network
-
-```
-docker network create app-network
-```
-
-## How to start
-
-```
-docker-compose up
-```
 
 ## Script for vulnerabilities scanning
 

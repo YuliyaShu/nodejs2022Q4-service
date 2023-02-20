@@ -15,8 +15,8 @@ model UserPrisma {
   login    String
   password String
   version  Int      @default(1)
-  createdAt Int
-  updatedAt Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
 }
 
 model ArtistPrisma {

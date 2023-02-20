@@ -1,28 +1,17 @@
-import {
-  forwardRef,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
-import { DbService } from 'src/db/db.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { v4 as uuidv4, validate } from 'uuid';
 import { Track } from './entities/track.entity';
 import { DTOValidation } from 'src/utils/DTOValidation';
-import { FavoritesService } from 'src/favorites/favorites.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class TracksService {
-  constructor(
-    private db: DbService,
-    @Inject(forwardRef(() => FavoritesService))
-    private favoritesService: FavoritesService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return this.db.tracks;
+    return await this.prisma.trackPrisma.findMany();
   }
 
   async findOne(id: string) {
@@ -32,7 +21,9 @@ export class TracksService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const track = this.db.tracks.find((track) => track.id === id);
+    const track = await this.prisma.trackPrisma.findUnique({
+      where: { id: id },
+    });
     if (!track) {
       throw new HttpException('Track was not found', HttpStatus.NOT_FOUND);
     }
@@ -58,8 +49,9 @@ export class TracksService {
       albumId: createTrackDto.albumId,
       duration: createTrackDto.duration,
     };
-    this.db.tracks.push(track);
-    return track;
+    return await this.prisma.trackPrisma.create({
+      data: track,
+    });
   }
 
   async update(id: string, updateTrackDto: UpdateTrackDto) {
@@ -75,21 +67,20 @@ export class TracksService {
     }
     if ('albumId' in updateTrackDto) {
       DTOValidation(updateTrackDto.albumId, ['string', 'object']);
-      track.albumId = updateTrackDto.albumId;
     }
     if ('artistId' in updateTrackDto) {
       DTOValidation(updateTrackDto.artistId, ['string', 'object']);
-      track.artistId = updateTrackDto.artistId;
     }
     if ('duration' in updateTrackDto) {
       DTOValidation(updateTrackDto.duration, ['number']);
-      track.duration = updateTrackDto.duration;
     }
     if ('name' in updateTrackDto) {
       DTOValidation(updateTrackDto.name, ['string']);
-      track.name = updateTrackDto.name;
     }
-    return track;
+    return await this.prisma.trackPrisma.update({
+      where: { id: id },
+      data: updateTrackDto,
+    });
   }
 
   async remove(id: string) {
@@ -103,11 +94,6 @@ export class TracksService {
     if (!track) {
       throw new HttpException('Track was not found', HttpStatus.NOT_FOUND);
     }
-    this.db.tracks = this.db.tracks.filter(
-      (trackForFilter) => trackForFilter.id !== id,
-    );
-    if (this.db.favs.tracks.includes(id)) {
-      await this.favoritesService.removeTrackFromFav(id);
-    }
+    await this.prisma.trackPrisma.delete({ where: { id: id } });
   }
 }

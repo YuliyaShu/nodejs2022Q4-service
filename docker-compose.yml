@@ -6,7 +6,7 @@ services:
     image: yuliya73/nodejs_2022q4:library
     build: 
       context: .
-      dockerfile: ./src/db/Dockerfile
+      dockerfile: ./db/Dockerfile
     env_file:
       - .env
     volumes:
