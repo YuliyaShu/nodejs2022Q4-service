@@ -25,7 +25,7 @@ npm install
 
 **Make copy of .env.example file and rename it to .env**
 
-- Download and install docker
+- Download, install and run docker
 
 
 - Start application
