@@ -2,13 +2,13 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class Track {
   @ApiProperty()
-  id: string; // uuid v4
+  id: string;
   @ApiProperty()
   name: string;
   @ApiProperty()
-  artistId: string | null; // refers to Artist
+  artistId: string | null;
   @ApiProperty()
-  albumId: string | null; // refers to Album
+  albumId: string | null;
   @ApiProperty()
-  duration: number; // integer number
+  duration: number;
 }

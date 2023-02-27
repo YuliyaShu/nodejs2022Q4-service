@@ -12,7 +12,7 @@ git clone https://github.com/YuliyaShu/nodejs2022Q4-service.git
 ```
 
 ```
-git switch dev
+git switch dev-docker
 ```
 
 ## Installing NPM modules
@@ -21,16 +21,56 @@ git switch dev
 npm install
 ```
 
-## Running application
+## Running application with Docker
 
 **Make copy of .env.example file and rename it to .env**
+
+- Download, install and run docker
+
+
+- Start application
+
 ```
-npm start
+npm run start:docker
 ```
+
+- Make prisma migrations with two scripts in new terminal (go inside the app and start migration)
+
+```
+docker exec -it app sh
+```
+
+```
+npx prisma migrate deploy
+```
+
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
+
+
+## Script for vulnerabilities scanning
+
+```
+npm run docker:scan
+```
+
+## The image is pushed to DockerHub
+
+https://hub.docker.com/repository/docker/yuliya73/nodejs_2022q4/tags?page=1&ordering=last_updated 
+
+To get app image:
+
+```
+docker pull yuliya73/nodejs_2022q4:app
+```
+
+To get db image:
+
+```
+docker pull yuliya73/nodejs_2022q4:library
+```
 
 ## Testing
 

@@ -4,9 +4,9 @@ export class CreateTrackDto {
   @ApiProperty()
   name: string;
   @ApiProperty()
-  artistId: string | null; // refers to Artist
+  artistId: string | null;
   @ApiProperty()
-  albumId: string | null; // refers to Album
+  albumId: string | null;
   @ApiProperty()
-  duration: number; // integer number
+  duration: number;
 }

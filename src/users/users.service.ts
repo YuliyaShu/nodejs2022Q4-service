@@ -1,14 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { DbService } from 'src/db/db.service';
+import { UserPrisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { getUserWithoutPassword } from 'src/utils/getUserWithoutPassword';
 import { v4 as uuidv4, validate } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(private db: DbService) {}
+  constructor(private prisma: PrismaService) {}
 
   private async getUserByIdWithPassword(id: string) {
     if (!validate(id)) {
@@ -17,7 +17,7 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const user = this.db.users.find((user) => user.id === id);
+    const user = await this.prisma.userPrisma.findUnique({ where: { id: id } });
     if (!user) {
       throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
@@ -25,10 +25,11 @@ export class UsersService {
   }
 
   async findAll() {
-    if (!this.db.users.length) {
-      return this.db.users;
+    const users = await this.prisma.userPrisma.findMany();
+    if (!users.length) {
+      return users;
     }
-    const usersWithoutPassword = [...this.db.users].map((user) =>
+    const usersWithoutPassword = [...users].map((user) =>
       getUserWithoutPassword(user),
     );
     return usersWithoutPassword;
@@ -41,7 +42,7 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const user = this.db.users.find((user) => user.id === id);
+    const user = await this.prisma.userPrisma.findUnique({ where: { id: id } });
     if (!user) {
       throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
@@ -55,15 +56,17 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const user: User = {
+    const user: UserPrisma = {
       id: uuidv4(),
       login: createUserDto.login,
       password: createUserDto.password,
       version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
-    this.db.users.push(user);
+    await this.prisma.userPrisma.create({
+      data: user,
+    });
     return getUserWithoutPassword(user);
   }
 
@@ -87,10 +90,11 @@ export class UsersService {
     if (updateUserDto.oldPassword !== user.password) {
       throw new HttpException('oldPassword is wrong', HttpStatus.FORBIDDEN);
     }
-    user.password = updateUserDto.newPassword;
-    user.version = user.version + 1;
-    user.updatedAt = Date.now();
-    return getUserWithoutPassword(user);
+    const updatedUser = await this.prisma.userPrisma.update({
+      where: { id: id },
+      data: updateUserDto,
+    });
+    return getUserWithoutPassword(updatedUser);
   }
 
   async remove(id: string) {
@@ -104,8 +108,6 @@ export class UsersService {
     if (!user) {
       throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
-    this.db.users = this.db.users.filter(
-      (userForFilter) => userForFilter.id !== id,
-    );
+    await this.prisma.userPrisma.delete({ where: { id: id } });
   }
 }
