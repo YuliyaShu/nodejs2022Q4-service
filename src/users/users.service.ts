@@ -68,13 +68,6 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const checkedUser = await this.findOneByLogin(createUserDto.login);
-    if (checkedUser) {
-      throw new HttpException(
-        'User with such login exists',
-        HttpStatus.CONFLICT,
-      );
-    }
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const user: UserPrisma = {
       id: uuidv4(),
