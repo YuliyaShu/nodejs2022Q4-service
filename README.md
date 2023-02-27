@@ -99,7 +99,7 @@ npm run test -- <path to suite>
 To run all test with authorization
 
 ```
-npm run test:auth
+npm run test:auth -- --runInBand
 ```
 
 To run only specific test suite with authorization

@@ -51,9 +51,14 @@ export class UsersService {
   }
 
   async findOneByLogin(login: string) {
-    return await this.prisma.userPrisma.findFirstOrThrow({
+    const users = await this.prisma.userPrisma.findMany({
       where: { login: login },
     });
+    if (users.length) {
+      return users[0];
+    } else {
+      return null;
+    }
   }
 
   async create(createUserDto: CreateUserDto) {
@@ -63,9 +68,13 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    await this.prisma.userPrisma.findFirstOrThrow({
-      where: { login: createUserDto.login },
-    });
+    const checkedUser = await this.findOneByLogin(createUserDto.login);
+    if (checkedUser) {
+      throw new HttpException(
+        'User with such login exists',
+        HttpStatus.CONFLICT,
+      );
+    }
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const user: UserPrisma = {
       id: uuidv4(),
