@@ -21,9 +21,17 @@ git switch dev-docker
 npm install
 ```
 
+**Make copy of .env.example file and rename it to .env**
+
+
+## Running application without Docker
+
+```
+npm run start
+```
+
 ## Running application with Docker
 
-**Make copy of .env.example file and rename it to .env**
 
 - Download, install and run docker
 

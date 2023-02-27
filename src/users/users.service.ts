@@ -50,6 +50,12 @@ export class UsersService {
     return getUserWithoutPassword(user);
   }
 
+  async findOneByLogin(login: string) {
+    return await this.prisma.userPrisma.findFirstOrThrow({
+      where: { login: login },
+    });
+  }
+
   async create(createUserDto: CreateUserDto) {
     if (!createUserDto.login || !createUserDto.password) {
       throw new HttpException(
@@ -57,6 +63,9 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     }
+    await this.prisma.userPrisma.findFirstOrThrow({
+      where: { login: createUserDto.login },
+    });
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const user: UserPrisma = {
       id: uuidv4(),
