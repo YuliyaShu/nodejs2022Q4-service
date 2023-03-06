@@ -21,9 +21,17 @@ git switch dev-docker
 npm install
 ```
 
+**Make copy of .env.example file and rename it to .env**
+
+
+## Running application without Docker
+
+```
+npm run start
+```
+
 ## Running application with Docker
 
-**Make copy of .env.example file and rename it to .env**
 
 - Download, install and run docker
 
@@ -91,7 +99,7 @@ npm run test -- <path to suite>
 To run all test with authorization
 
 ```
-npm run test:auth
+npm run test:auth -- --runInBand
 ```
 
 To run only specific test suite with authorization

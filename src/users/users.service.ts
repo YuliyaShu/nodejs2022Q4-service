@@ -5,6 +5,7 @@ import { getUserWithoutPassword } from 'src/utils/getUserWithoutPassword';
 import { v4 as uuidv4, validate } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -49,6 +50,17 @@ export class UsersService {
     return getUserWithoutPassword(user);
   }
 
+  async findOneByLogin(login: string) {
+    const users = await this.prisma.userPrisma.findMany({
+      where: { login: login },
+    });
+    if (users.length) {
+      return users[0];
+    } else {
+      return null;
+    }
+  }
+
   async create(createUserDto: CreateUserDto) {
     if (!createUserDto.login || !createUserDto.password) {
       throw new HttpException(
@@ -56,10 +68,11 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     }
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const user: UserPrisma = {
       id: uuidv4(),
       login: createUserDto.login,
-      password: createUserDto.password,
+      password: hashedPassword,
       version: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -87,12 +100,16 @@ export class UsersService {
     if (!user) {
       throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
-    if (updateUserDto.oldPassword !== user.password) {
+    if (!(await bcrypt.compare(updateUserDto.oldPassword, user.password))) {
       throw new HttpException('oldPassword is wrong', HttpStatus.FORBIDDEN);
     }
+    updateUserDto.newPassword = await bcrypt.hash(
+      updateUserDto.newPassword,
+      10,
+    );
     const updatedUser = await this.prisma.userPrisma.update({
       where: { id: id },
-      data: updateUserDto,
+      data: { password: updateUserDto.newPassword },
     });
     return getUserWithoutPassword(updatedUser);
   }

@@ -33,7 +33,13 @@ export class ArtistsService {
   async create(createArtistDto: CreateArtistDto) {
     if (!('grammy' in createArtistDto) || !('name' in createArtistDto)) {
       throw new HttpException(
-        'Bad request. body does not contain required fields',
+        'Bad request. Body does not contain required fields',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (typeof createArtistDto.grammy !== 'boolean') {
+      throw new HttpException(
+        'Bad request. Incorrect input type',
         HttpStatus.BAD_REQUEST,
       );
     }

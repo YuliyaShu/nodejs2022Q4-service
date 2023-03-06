@@ -12,7 +12,13 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { userSchema } from './entities/user.schema';
 import { createUserSchema } from './dto/create-user.schema';
 import { updateUserSchema } from './dto/update-user.schema';
@@ -25,6 +31,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all users', description: 'Gets all users' })
   @ApiResponse({
     status: HttpStatus.OK,
