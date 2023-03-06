@@ -11,9 +11,6 @@
 git clone https://github.com/YuliyaShu/nodejs2022Q4-service.git
 ```
 
-```
-git switch dev-docker
-```
 
 ## Installing NPM modules
 
